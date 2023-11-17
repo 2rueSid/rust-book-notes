@@ -1,37 +1,52 @@
-use std::fs::read_to_string;
+use std::fs::File;
+use std::io::{self, BufRead};
 
 const FILENAME: &str = "./input.txt";
 
-fn main() {
+enum Variant {
+    Rock,
+    Paper,
+    Scissors,
+}
+
+enum Result {
+    Loss = 0,
+    Draw = 3,
+    Win = 6,
+}
+
+fn main() -> io::Result<()> {
     let mut result = 0;
-    let (rock, paper, scissors) = (1, 2, 3);
-    let (loss, draw, win) = (0, 3, 6);
 
-    for line in read_to_string(FILENAME).unwrap().lines() {
-        let parsed_line: Vec<&str> = line.trim().split(" ").collect();
+    let file = File::open(FILENAME)?;
 
-        match parsed_line[0] {
-            "A" => match parsed_line[1] {
-                "X" => result += scissors + loss,
-                "Y" => result += rock + draw,
-                "Z" => result += paper + win,
-                _ => {}
-            },
-            "B" => match parsed_line[1] {
-                "X" => result += rock + loss,
-                "Y" => result += paper + draw,
-                "Z" => result += scissors + win,
-                _ => {}
-            },
-            "C" => match parsed_line[1] {
-                "X" => result += paper + loss,
-                "Y" => result += scissors + draw,
-                "Z" => result += rock + win,
-                _ => {}
-            },
-            _ => {}
-        }
+    for line in io::BufReader::new(file).lines() {
+        let line = line?;
+        let parsed_line: Vec<&str> = line.split_whitespace().collect();
+
+        let varian = match parsed_line[0] {
+            "A" => Variant::Scissors,
+            "B" => Variant::Rock,
+            "C" => Variant::Paper,
+            _ => continue,
+        };
+
+        let outcome = match parsed_line[1] {
+            "X" => Result::Loss,
+            "Y" => Result::Draw,
+            "Z" => Result::Win,
+            _ => continue,
+        };
+
+        let var_result = match varian {
+            Variant::Rock => 1,
+            Variant::Paper => 2,
+            Variant::Scissors => 3,
+        };
+
+        result += var_result + outcome as i32;
     }
 
     println!("Result -> {result}");
+    Ok(())
 }
