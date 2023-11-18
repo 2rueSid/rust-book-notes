@@ -6,31 +6,29 @@ const FILEPATH: &str = "./input.txt";
 
 fn main() {
     let file = File::open(FILEPATH).expect("File does not exists {FILEPATH}");
+    let reader = BufReader::new(file);
+    let lines: Vec<String> = reader.lines().map(|line| line.unwrap()).collect();
 
-    let result: u32;
+    let mut result: u32;
 
-    // result = task_one(&file);
-    // println!("result task 1 -> {}", result);
+    result = task_one(&lines);
+    println!("result task 1 -> {}", result);
 
-    result = task_two(&file);
+    result = task_two(&lines);
     println!("result task 2 -> {}", result);
 }
-fn task_two(file: &File) -> u32 {
+fn task_two(lines: &Vec<String>) -> u32 {
     let mut res: u32 = 0;
-    let mut vector: Vec<HashSet<char>> = vec![];
-    for line in BufReader::new(file).lines() {
-        let line: String = line.expect("Error while reading line");
-        let lien_set: HashSet<char> = line.chars().collect();
-        vector.push(lien_set);
-
-        if vector.len() != 3 {
+    for chunk in lines.chunks(3) {
+        if chunk.len() != 3 {
             continue;
         }
+
+        let vector: Vec<HashSet<char>> = chunk.iter().map(|line| line.chars().collect()).collect();
 
         for item in &vector[0] {
             if vector[1].contains(&item) && vector[2].contains(&item) {
                 res += get_pos(*item);
-                vector.clear();
                 break;
             }
         }
@@ -39,15 +37,13 @@ fn task_two(file: &File) -> u32 {
     res
 }
 
-fn task_one(file: &File) -> u32 {
+fn task_one(lines: &Vec<String>) -> u32 {
     let mut result: u32 = 0;
-    for line in BufReader::new(file).lines() {
-        let line = line.expect("Error while reading line");
+    for line in lines {
         let length = line.len();
 
         let (pt1, pt2) = &line.split_at(length / 2);
 
-        // Create Set from characters
         let pt2_set: HashSet<char> = pt2.chars().collect();
         let pt1_set: HashSet<char> = pt1.chars().collect();
 
