@@ -1,14 +1,11 @@
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::ops::RangeInclusive;
 
 const FILEPATH: &str = "./input.txt";
 
 fn main() {
     let file = File::open(FILEPATH).expect("File does not exists {FILEPATH}");
-
-    let lower_case = 'a'..='z';
-    let upper_case = 'A'..='Z';
 
     let mut result: u32 = 0;
 
@@ -16,16 +13,15 @@ fn main() {
         let line = line.expect("Error while reading line");
         let length = line.len();
 
-        let splitted_line = &line.split_at((length / 2));
+        let (pt1, pt2) = &line.split_at(length / 2);
 
-        for item in splitted_line.0.chars().into_iter() {
-            if splitted_line.1.contains(item) {
-                if lower_case.contains(&item) {
-                    result += get_pos(&lower_case, item) + 1;
-                } else {
-                    result += get_pos(&upper_case, item) + 27;
-                }
+        // Create Set from characters
+        let pt2_set: HashSet<char> = pt2.chars().collect();
+        let pt1_set: HashSet<char> = pt1.chars().collect();
 
+        for item in pt1_set {
+            if pt2_set.contains(&item) {
+                result += get_pos(item);
                 break;
             }
         }
@@ -34,9 +30,10 @@ fn main() {
     println!("result -> {}", result);
 }
 
-fn get_pos(range: &RangeInclusive<char>, item: char) -> u32 {
-    range
-        .clone()
-        .position(|x| x == item)
-        .expect("Error while getting index") as u32
+fn get_pos(item: char) -> u32 {
+    match item {
+        'a'..='z' => item as u32 - 'a' as u32 + 1,
+        'A'..='Z' => item as u32 - 'A' as u32 + 27,
+        _ => 0,
+    }
 }
