@@ -1,6 +1,8 @@
 // mod sort;
+pub mod queue;
 pub mod search;
 pub mod sort;
+
 fn main() {
     let mut arr: [i32; 5] = [1, 3, 10, 30, 0];
     sort::bubble_sort(&mut arr);
